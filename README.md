@@ -1,0 +1,2 @@
+# scrlink
+A simple go program to scrape image links from [commons.wikimedia.org](commons.wikimedia.org) category page using colly scraping library. It would take the wikimedia category page (example: https://commons.wikimedia.org/wiki/Category:Drawings_by_User:LuxAmber) and write the image links from the page into an output
