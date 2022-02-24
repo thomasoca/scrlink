@@ -61,8 +61,8 @@ func main() {
 	case argsLen > 2:
 		fmt.Println("Too many arguments")
 	}
-	wikimediaUrl := args[1]
-	fileName := args[2]
+	wikimediaUrl := args[0]
+	fileName := args[1]
 
 	scrapper(wikimediaUrl, fileName)
 }
