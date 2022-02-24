@@ -13,8 +13,8 @@ func check(e error) {
 	}
 }
 
-func writeFile(line string) {
-	f, err := os.OpenFile("links.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+func writeFile(filename string, line string) {
+	f, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	check(err)
 	newLine := line + "\n"
 	n, err := f.WriteString(newLine)
@@ -23,16 +23,19 @@ func writeFile(line string) {
 	defer f.Close()
 }
 
-func main() {
+func scrapper(url string, filename string) {
 	var baseUrl = "commons.wikimedia.org"
+
 	// Instantiate default collector
 	c := colly.NewCollector(
 		colly.AllowedDomains(baseUrl),
 	)
 
+	// Instantiate collector for image link
 	imgCollector := c.Clone()
 
 	// On every a element which has href attribute call callback
+	// Get gallerytext class
 	c.OnHTML(".gallerytext", func(e *colly.HTMLElement) {
 		link := e.ChildAttr("a", "href")
 		imgLink := e.Request.AbsoluteURL(link)
@@ -42,17 +45,24 @@ func main() {
 	imgCollector.OnHTML("#file", func(e *colly.HTMLElement) {
 		img := e.ChildAttr("a", "href")
 		fmt.Printf("Image link: %s\n", img)
-		writeFile(img)
-	})
-
-	c.OnRequest(func(r *colly.Request) {
-		fmt.Println("Visiting", r.URL)
-	})
-
-	imgCollector.OnRequest(func(r *colly.Request) {
-		fmt.Println("Visiting image link", r.URL)
+		writeFile(filename, img)
 	})
 
 	// Start scraping on wikimedia images
-	c.Visit("https://commons.wikimedia.org/wiki/Category:Drawings_by_User:LuxAmber")
+	c.Visit(url)
+}
+
+func main() {
+	args := os.Args[1:]
+	argsLen := len(args)
+	switch {
+	case argsLen < 2:
+		fmt.Println("Missing some arguments, please check your input")
+	case argsLen > 2:
+		fmt.Println("Too many arguments")
+	}
+	wikimediaUrl := args[1]
+	fileName := args[2]
+
+	scrapper(wikimediaUrl, fileName)
 }
